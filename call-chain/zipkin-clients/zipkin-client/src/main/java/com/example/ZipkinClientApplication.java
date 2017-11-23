@@ -34,7 +34,7 @@ public class ZipkinClientApplication {
     }
 
     @FeignClient(value = "zipkin-client0")
-    public static interface FeignServiceInterface {
+    public interface FeignServiceInterface {
         @RequestMapping(value = "/", method = RequestMethod.GET)
         String callServiceFeign(@RequestParam(value = "name") String name);
     }
