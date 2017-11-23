@@ -1,0 +1,45 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.8.RELEASE'
+    }
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+allprojects {
+    apply plugin: 'java'
+    /*apply plugin: 'eclipse'    No need in dead.   */
+    apply plugin: 'org.springframework.boot'
+    /*apply plugin: 'spring-boot'   this is the same as 'org.springframework.boot' */
+
+    group = 'com.example'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = 1.8
+
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+
+    ext {
+        springCloudVersion = 'Dalston.SR4'
+    }
+
+    dependencies {
+        compile "org.springframework.boot:spring-boot-starter-logging"
+        testCompile "org.springframework.boot:spring-boot-starter-test"
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+
+}

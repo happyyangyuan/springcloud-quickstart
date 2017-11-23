@@ -1,0 +1,30 @@
+server:
+  port: 8883
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+spring:
+  application:
+    name: config-reader
+  cloud:
+    config:
+      label:  master
+      profile:  dev
+      uri:  http://localhost:8888/
+  rabbitmq:
+    host: production-internet-mq.apaycloud.com
+    port: 5672
+    username: allpay
+    password: go4allpay
+logging:
+  level:
+    org:
+      springframework:
+        cloud:  DEBUG
+management:
+  security:
+    enabled: false
+

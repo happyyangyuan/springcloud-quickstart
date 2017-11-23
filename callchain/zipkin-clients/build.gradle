@@ -1,0 +1,9 @@
+subprojects{
+    dependencies {
+        compile 'org.springframework.cloud:spring-cloud-starter-zipkin'
+        /*compile "org.springframework.cloud:spring-cloud-sleuth-zipkin-stream"*/
+        /*compile "org.springframework.cloud:spring-cloud-starter-sleuth"*/
+        compile "org.springframework.cloud:spring-cloud-starter-feign"
+        compile "org.springframework.cloud:spring-cloud-starter-eureka"
+    }
+}
