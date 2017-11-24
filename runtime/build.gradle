@@ -1,6 +1,0 @@
-allprojects {
-    task copyPlugins(type: Sync) {
-        from configurations.runtime
-        into 'plugins'
-    }
-}

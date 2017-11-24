@@ -11,7 +11,7 @@ buildscript {
 
 allprojects {
     apply plugin: 'java'
-    apply plugin: 'spring-boot'// or 'org.springframework.boot'
+    apply plugin: 'org.springframework.boot'
     apply plugin: 'docker'
 
     group = 'com.example'
@@ -24,7 +24,6 @@ allprojects {
     }
 
     dependencies {
-        /*compile "org.springframework.boot:spring-boot-starter-logging"*/
         testCompile "org.springframework.boot:spring-boot-starter-test"
     }
 
@@ -49,11 +48,7 @@ allprojects {
             from configurations.archives.artifacts.files
             into '/data/workspace/' + project.name
         }
-        defaultCommand new ArrayList() {
-            {
-                add "java -cp *:../libs/* com.example.Application"
-            }
-        }
+        defaultCommand(["java -cp *:../libs/* ${mainClassFullName}"])
         workingDir '/data/workspace/' + project.name
     }
 

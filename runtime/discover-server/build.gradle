@@ -1,3 +1,0 @@
-dependencies {
-    runtime project(":discovery:eureka-server")
-}
