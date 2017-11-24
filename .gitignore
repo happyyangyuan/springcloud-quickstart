@@ -27,3 +27,8 @@ nbdist/
 ### java ###
 *.class
 out/
+*.jar
+*.war
+
+### Mac OS ###
+.DS_Store

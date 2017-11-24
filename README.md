@@ -1,5 +1,5 @@
 #### springcloud-quickstart
- 这是一个spring cloud微服务框架超级简单入门教程。
+ 这是一个基于gradle构建工具的springCloud微服务框架超级简单入门教程。
  
  
 包含了以下几个非常单纯的示例：<br/>

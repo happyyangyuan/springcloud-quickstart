@@ -1,21 +1,18 @@
 buildscript {
-    ext {
-        springBootVersion = '1.5.8.RELEASE'
-    }
     repositories {
         jcenter()
         mavenCentral()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "se.transmode.gradle:gradle-docker:${transmodeGradleDockerVersion}"
     }
 }
 
 allprojects {
     apply plugin: 'java'
-    /*apply plugin: 'eclipse'    No need in dead.   */
-    apply plugin: 'org.springframework.boot'
-    /*apply plugin: 'spring-boot'   this is the same as 'org.springframework.boot' */
+    apply plugin: 'spring-boot'// or 'org.springframework.boot'
+    apply plugin: 'docker'
 
     group = 'com.example'
     version = '0.0.1-SNAPSHOT'
@@ -26,13 +23,8 @@ allprojects {
         mavenCentral()
     }
 
-
-    ext {
-        springCloudVersion = 'Dalston.SR4'
-    }
-
     dependencies {
-        compile "org.springframework.boot:spring-boot-starter-logging"
+        /*compile "org.springframework.boot:spring-boot-starter-logging"*/
         testCompile "org.springframework.boot:spring-boot-starter-test"
     }
 
@@ -40,6 +32,29 @@ allprojects {
         imports {
             mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
         }
+    }
+
+    docker {
+        maintainer = 'happyyangyuan <happyyangyuan@163.com>'
+        baseImage = 'openjdk:8-jre-alpine'
+    }
+
+    task dockerBuild(type: Docker) {
+        applicationName = project.name
+        addFile {
+            from configurations.runtime
+            into '/data/workspace/libs'
+        }
+        addFile {
+            from configurations.archives.artifacts.files
+            into '/data/workspace/' + project.name
+        }
+        defaultCommand new ArrayList() {
+            {
+                add "java -cp *:../libs/* com.example.Application"
+            }
+        }
+        workingDir '/data/workspace/' + project.name
     }
 
 }
