@@ -48,8 +48,12 @@ allprojects {
             from configurations.archives.artifacts.files
             into '/data/workspace/' + project.name
         }
-        defaultCommand(["java -cp *:../libs/* ${mainClassFullName}"])
         workingDir '/data/workspace/' + project.name
+        /*
+        defaultCommand(['java -cp *:../libs/* ' + mainClassFullName])
+        this produces a 'stat java -cp *:../libs/* com.example.EurekaServerApplication: no such file or directory' error. Don't know the reason.
+        */
+        entryPoint(['java', '-cp', '*:../libs/*', mainClassFullName])
     }
 
 }
