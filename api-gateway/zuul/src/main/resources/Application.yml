@@ -1,0 +1,20 @@
+server:
+  port: 8769
+
+eureka:
+  client:
+    serveiceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: zuul
+
+zuul:
+  routes:
+    api0:
+      path: /api0/**
+      serviceId: eureka-demo-client
+#    api1:
+#      path: /api1/**
+#      serviceId: eureka-demo-client0 there is no 'eureka-demo-client0' in the demo.

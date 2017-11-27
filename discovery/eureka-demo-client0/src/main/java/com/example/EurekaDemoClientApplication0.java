@@ -22,7 +22,7 @@ public class EurekaDemoClientApplication0 {
     private int port;
 
     @RequestMapping("/hi")
-    public String home() {
+    public String hi() {
         return "hi, my port=" + port;
     }
 }
