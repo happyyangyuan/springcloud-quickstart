@@ -7,7 +7,7 @@
 2、服务路由和负载均衡 routing <br/>
 3、调用链追踪 call-chain <br/>
 4、集中配置管理 config <br/>
-5、服务网关 待补充...<br/>
+5、服务网关 api-gateway<br/>
 6、断路器 待补充...<br/>
 7、容器化运行方案：<br/>
     根目录内的build.gradle脚本不要修改。<br/>
