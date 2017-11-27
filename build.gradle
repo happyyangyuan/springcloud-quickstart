@@ -8,11 +8,9 @@ buildscript {
         classpath "se.transmode.gradle:gradle-docker:${transmodeGradleDockerVersion}"
     }
 }
-
 allprojects {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
-    apply plugin: 'docker'
 
     group = 'com.example'
     version = '0.0.1-SNAPSHOT'
@@ -33,29 +31,25 @@ allprojects {
         }
     }
 
-    docker {
-        maintainer = 'happyyangyuan <happyyangyuan@163.com>'
-        baseImage = 'openjdk:8-jre-alpine'
-    }
-
-    if (!project.subprojects)
+    if (project.subprojects) {
+        bootRepackage {
+            enabled = false
+        }
+    } else {
+        apply plugin: 'docker'
+        docker {
+            maintainer = 'happyyangyuan <happyyangyuan@163.com>'
+            baseImage = 'openjdk:8-jre-alpine'
+        }
         task dockerBuild(type: Docker, dependsOn: build) {
             applicationName = project.name
-            addFile {
-                from configurations.runtime
-                into '/data/workspace/libs'
-            }
             addFile {
                 from configurations.archives.artifacts.files
                 into '/data/workspace/' + project.name
             }
             workingDir '/data/workspace/' + project.name
-            /*
-            defaultCommand(['java -cp *:../libs/* ' + mainClassFullName])
-            this produces a 'stat java -cp *:../libs/* com.example.EurekaServerApplication: no such file or directory' error. Don't know the reason.
-            Use separated cmd array instead.
-            */
-            defaultCommand(['java', '-cp', '*:../libs/*', mainClassFullName])
+            defaultCommand(['java', '-jar', "${project.name}-${project.version}.jar"])
         }
+    }
 
 }
