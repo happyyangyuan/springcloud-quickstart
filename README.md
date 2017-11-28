@@ -1,7 +1,7 @@
 #### springcloud-quickstart
  这是一个基于gradle构建工具的springCloud微服务框架超级简单入门教程。
  
- 
+<p>
 包含了以下几个非常单纯的示例：<br/>
 1、服务注册和发现 discovery <br/>
 2、服务路由和负载均衡 routing <br/>
@@ -10,10 +10,19 @@
 5、服务网关 api-gateway<br/>
 6、断路器 待补充...<br/>
 7、容器化运行方案：<br/>
-    根目录内的build.gradle脚本不要修改。<br/>
-    在根目录执行gradle dockerBuild命令，构建完毕后，可使用docker images查看。 <br/>
-    镜像构建完毕后，使用docker run -p 8761:8761 com.example/eureka-server:0.0.1-SNAPSHOT 运行，其他服务启动方式依次类推，建议端口暴露映射与内部端口一致，不然你需要改application配置文件了。
-    
+    1)先新建一个容器网络，以便多个容器(微服务)之间可以相互通信，命令为： <br/>
+        `docker network create springcloud-quickstart` <br/>
+    2)在根目录执行gradle dockerBuild命令，构建完毕后，可使用docker images查看。 <br/>
+    3)由于几乎所有的其他微服务组件都依赖服务发现，因此先启动服务注册服务端：<br/>
+        使用 `docker run --network springcloud-quickstart -p 8761:8761 com.example/eureka-server:0.0.1-SNAPSHOT` 运行，<br/>
+        发现服务(eureka-server)需要端口暴露，以便我们可以在容器外面访问到它的控制台，地址是：`http://localhost:8761`，此外，建议映射与内部端口一致。<br/>
+    4)启动其他服务，启动方式依次类推，除了zipkin-server和zuul网关，其他微服务组件是可以不暴露端口到外部的：<br/>
+        列举几个关键节点启动命令：<br/>
+        zuul网关启动：   `docker run --network springcloud-quickstart -p 8769:8769 com.example/zuul:0.0.1-SNAPSHOT` <br/>
+        zipkin调用链追踪：    `docker run --network springcloud-quickstart -p 9411:9411 com.example/zipkin-server:0.0.1-SNAPSHOT` <br/>
+        配置服务器启动：   `docker run --network springcloud-quickstart -p 8888:8888 com.example/config-server:0.0.1-SNAPSHOT` <br/>
+        其他： `docker run --network springcloud-quickstart com.example/<applicationName>:0.0.1-SNAPSHOT` <br/>
+</p>
 
 请按顺序学习，更多细节待补充...
 <br/><br/><br/>

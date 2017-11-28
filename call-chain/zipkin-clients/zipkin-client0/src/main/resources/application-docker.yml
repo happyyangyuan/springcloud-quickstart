@@ -1,6 +1,6 @@
 eureka:
   client:
-    serviceUrl:
+    service-url:
       defaultZone: http://${HOST_MACHINE_IP}:8761/eureka/
 spring:
   zipkin:
