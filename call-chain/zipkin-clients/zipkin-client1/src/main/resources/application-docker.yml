@@ -1,0 +1,7 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${HOST_MACHINE_IP}:8761/eureka/
+spring:
+  zipkin:
+    base-url: http://${HOST_MACHINE_IP}:9411
