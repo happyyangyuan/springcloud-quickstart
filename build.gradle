@@ -48,7 +48,8 @@ allprojects {
                 into '/data/workspace/' + project.name
             }
             workingDir '/data/workspace/' + project.name
-            defaultCommand(['java', '-jar', "${project.name}-${project.version}.jar"])
+            setEnvironment('HOST_MACHINE_IP','172.17.0.1')
+            defaultCommand(['java', '-jar', '-Dspring.profiles.active=docker', "${project.name}-${project.version}.jar"])
         }
     }
 
