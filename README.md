@@ -9,14 +9,14 @@
 5. 服务网关 api-gateway.
 6. 断路器 待补充.
 7. 容器化运行方案
-      (1) 先新建一个容器网络，以便多个容器(微服务)之间可以相互通信，命令为：           
+      1. 先新建一个容器网络，以便多个容器(微服务)之间可以相互通信，命令为：           
         ```docker network create springcloud-quickstart```        
-      (2) 修改根路径内的gradle.properties文件中的"hostMachineIp"配置为宿主机IP地址，这很重要！          
-      (3) 在根目录执行gradle dockerBuild命令，构建完毕后，可使用docker images查看。           
-      (4) 由于几乎所有的其他微服务组件都依赖服务发现，因此先启动服务注册服务端：          
+      2.  修改根路径内的gradle.properties文件中的"hostMachineIp"配置为宿主机IP地址，这很重要！          
+      3.  在根目录执行gradle dockerBuild命令，构建完毕后，可使用docker images查看。           
+      4.  由于几乎所有的其他微服务组件都依赖服务发现，因此先启动服务注册服务端：          
         使用 ```docker run --network springcloud-quickstart -p 8761:8761 com.example/eureka-server:0.0.1-SNAPSHOT``` 运行，        
         发现服务(eureka-server)需要端口暴露，以便我们可以在容器外面访问到它的控制台，地址是：`http://localhost:8761`，此外，建议映射与内部端口一致。           
-      (5) 启动其他服务，启动方式依次类推，除了zipkin-server和zuul网关，其他微服务组件是可以不暴露端口到外部的：          
+      5.  启动其他服务，启动方式依次类推，除了zipkin-server和zuul网关，其他微服务组件是可以不暴露端口到外部的：          
         列举几个关键节点启动命令：         
         a.  zuul网关启动：        
         ```docker run --network springcloud-quickstart -p 8769:8769 com.example/zuul:0.0.1-SNAPSHOT```            
