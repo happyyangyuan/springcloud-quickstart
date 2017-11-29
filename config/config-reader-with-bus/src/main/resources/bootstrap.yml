@@ -15,10 +15,10 @@ spring:
       profile:  dev
       uri:  http://localhost:8888/
   rabbitmq:
-    host: production-internet-mq.apaycloud.com
-    port: 5672
-    username: allpay
-    password: go4allpay
+    host: yourRabbitMqHost
+    port: 000 #yourRabbitPort
+    username: rabbitUserName
+    password: rabbitUserPwd
 logging:
   level:
     org:
