@@ -1,9 +1,32 @@
 # springcloud-quickstart
 这是一个基于gradle构建工具的springCloud微服务框架超级简单入门教程。
+spring cloud为开发人员提供了快速搭建分布式系统的一整套解决方案，包括配置管理、服务发现、断路器、路由、微代理、事件总线、全局锁、决策竞选、分布式会话等等。它可以直接在PC上使用Java的main方法运行集群。
+另外说明spring cloud是基于springboot的，所以需要开发中对springboot有一定的了解。
 
 ## 包含了以下几个简单示例
 ### 服务注册和发现 discovery.
-待补充
+本示例使用的是Spring Cloud Netflix的Eureka ,eureka是一个服务注册和发现模块，公共依赖部分已经在根路径的build.gradle中给出，
+eureka-server模块自身依赖在build.gradle文件配置如下：
+```
+dependencies {
+    compile('org.springframework.cloud:spring-cloud-starter-eureka-server')
+}
+```
+application.yml配置：
+```
+server:
+  port: 8761
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+```
+其中，  todo 待补充，先去吃饭...
+详见/discovery/eureka-server模块。
 ### 服务路由和负载均衡 routing.
 待补充
 ### 调用链追踪 call-chain.
