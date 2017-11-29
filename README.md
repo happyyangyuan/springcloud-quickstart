@@ -3,9 +3,9 @@
 spring cloud为开发人员提供了快速搭建分布式系统的一整套解决方案，包括配置管理、服务发现、断路器、路由、微代理、事件总线、全局锁、决策竞选、分布式会话等等。它可以直接在PC上使用Java的main方法运行集群。
 另外说明spring cloud是基于springboot的，所以需要开发中对springboot有一定的了解。
 
-## spring cloud依赖管理--根build.gradle文件
-1. 定义gradle全局公共变量：gradle.properties文件。我们主要用它来定义springCloud版本号，springboot版本号，以及其他一些公共变量
-```
+## spring cloud依赖管理
+1. 申明gradle全局公共变量：gradle.properties文件。我们主要用它来定义springCloud版本号，springboot版本号，以及其他一些公共变量
+```properties
 ## dependency versions.
 springBootVersion=1.5.8.RELEASE
 springCloudVersion=Edgware.RELEASE
@@ -16,7 +16,7 @@ transmodeGradleDockerVersion=1.2
 hostMachineIp=10.40.20.54
 ```
 2. 申明springboot gradle插件
-```
+```gradle
 buildscript {
     repositories {
         maven { url "https://repo.spring.io/libs-milestone/" }
@@ -28,7 +28,7 @@ buildscript {
 }
 ```
 3. 为所有gradle project引入springcloud公共依赖
-```
+```gradle
 allprojects {
     apply plugin: 'org.springframework.boot'
     repositories {
@@ -45,7 +45,7 @@ allprojects {
 ```
 4. settings.gradle文件
 它的作用是帮我们在IDE内自动组织项目结构（project structures）的，帮我们避开idea/eclipse内配置工程结构的复杂操作有兴趣可以读一下源码。
-```
+```gradle
 def dir = new File(settingsDir.toString())
 def projects = new HashSet()
 def projectSymbol = File.separator + 'src'
@@ -72,13 +72,13 @@ dir.eachDirRecurse { subDir ->
 ## 服务注册中心 /discovery/eureka-server
 1. 本示例使用的是Spring Cloud Netflix的Eureka ,eureka是一个服务注册和发现模块，公共依赖部分已经在根路径的build.gradle中给出，
 eureka-server模块自身依赖在/discovery/eureka-server/build.gradle文件配置如下：
-```
+```gradle
 dependencies {
     compile('org.springframework.cloud:spring-cloud-starter-eureka-server')
 }
 ```
 2. eureka是一个高可用的组件，不依赖后端缓存，每一个实例注册之后需要向注册中心发送心跳，是在eureka-server的内存中完成的，在默认情况下erureka-server也是一个eureka client，必须要指定一个server地址。eureka-server的配置文件appication.yml：
-```
+```yml
 server:
   port: 8761
 eureka:
@@ -90,9 +90,9 @@ eureka:
     service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 ```
-请注意一点，很多网上的教程，还有spring官方的教程上将service-url写成serviceUrl这是错误的！
+另请注意一点：很多网上的教程以及spring官方的教程上将'service-url'写成'serviceUrl'这是错误的！<br/>
 3. eureka-server的springboot入口main application类：
-```
+```java
 @EnableEurekaServer
 @SpringBootApplication
 public class EurekaServerApplication {
@@ -101,8 +101,36 @@ public class EurekaServerApplication {
     }
 }
 ```
-详见/discovery/eureka-server模块。
-4.
+启动这个main方法，然后访问 http://localhost:8761  <br/>
+代码详见/discovery/eureka-server模块。<br/>
+4. eureka-client服务注册客户端（service provider）
+服务提供方，比如一个微服务，可以将自己的信息注册到注册中心eureka-server内。<br/>
+/discovery/eureka-demo-client/build.gradle文件指定依赖如下：
+```gradle
+dependencies {
+    compile "org.springframework.cloud:spring-cloud-starter-eureka"
+}
+```
+springboot入口main类：com.example.EurekaDemoClientApplication.java
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class EurekaDemoClientApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaDemoClientApplication.class, args);
+    }
+
+    @Value("${server.port}")
+    private int port;
+
+    @RequestMapping("/hi")
+    public String hi() {
+        return "hi, my port=" + port;
+    }
+}
+```
+
 ### 服务路由和负载均衡 routing.
 待补充
 ### 调用链追踪 call-chain.
