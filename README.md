@@ -3,16 +3,81 @@
 spring cloud为开发人员提供了快速搭建分布式系统的一整套解决方案，包括配置管理、服务发现、断路器、路由、微代理、事件总线、全局锁、决策竞选、分布式会话等等。它可以直接在PC上使用Java的main方法运行集群。
 另外说明spring cloud是基于springboot的，所以需要开发中对springboot有一定的了解。
 
-## 包含了以下几个简单示例
-### 服务注册和发现 discovery.
-本示例使用的是Spring Cloud Netflix的Eureka ,eureka是一个服务注册和发现模块，公共依赖部分已经在根路径的build.gradle中给出，
-eureka-server模块自身依赖在build.gradle文件配置如下：
+## spring cloud依赖管理--根build.gradle文件
+1. 定义gradle全局公共变量：gradle.properties文件。我们主要用它来定义springCloud版本号，springboot版本号，以及其他一些公共变量
+```
+## dependency versions.
+springBootVersion=1.5.8.RELEASE
+springCloudVersion=Edgware.RELEASE
+### docker configuration
+#gradle docker plugin version
+transmodeGradleDockerVersion=1.2
+#This configuration is for docker container environment to access the local machine host，in Chinese is "宿主机" ip.
+hostMachineIp=10.40.20.54
+```
+2. 申明springboot gradle插件
+```
+buildscript {
+    repositories {
+        maven { url "https://repo.spring.io/libs-milestone/" }
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+```
+3. 为所有gradle project引入springcloud公共依赖
+```
+allprojects {
+    apply plugin: 'org.springframework.boot'
+    repositories {
+        maven { url "https://repo.spring.io/libs-milestone/" }
+        jcenter()
+    }
+    dependencyManagement {
+        imports {
+            //spring bom helps us to declare dependencies without specifying version numbers.
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+}
+```
+4. settings.gradle文件
+它的作用是帮我们在IDE内自动组织项目结构（project structures）的，帮我们避开idea/eclipse内配置工程结构的复杂操作有兴趣可以读一下源码。
+```
+def dir = new File(settingsDir.toString())
+def projects = new HashSet()
+def projectSymbol = File.separator + 'src'
+dir.eachDirRecurse { subDir ->
+    def subDirName = subDir.canonicalPath
+    def isSubProject = true
+    if (subDirName.endsWith(projectSymbol)) {
+        for (String projectDir in projects) {
+            if (subDirName.startsWith(projectDir)) {
+                isSubProject = false
+                break
+            }
+        }
+        if (isSubProject) {
+            projects << subDirName
+            def lastIndex = subDirName.lastIndexOf(projectSymbol)
+            def gradleModulePath = subDirName.substring(dir.canonicalPath.length(), lastIndex).replace(File.separator, ':')
+            println "include " + gradleModulePath
+            include gradleModulePath
+        }
+    }
+}
+```
+## 服务注册中心 /discovery/eureka-server
+1. 本示例使用的是Spring Cloud Netflix的Eureka ,eureka是一个服务注册和发现模块，公共依赖部分已经在根路径的build.gradle中给出，
+eureka-server模块自身依赖在/discovery/eureka-server/build.gradle文件配置如下：
 ```
 dependencies {
     compile('org.springframework.cloud:spring-cloud-starter-eureka-server')
 }
 ```
-application.yml配置：
+2. eureka是一个高可用的组件，不依赖后端缓存，每一个实例注册之后需要向注册中心发送心跳，是在eureka-server的内存中完成的，在默认情况下erureka-server也是一个eureka client，必须要指定一个server地址。eureka-server的配置文件appication.yml：
 ```
 server:
   port: 8761
@@ -22,11 +87,22 @@ eureka:
   client:
     registerWithEureka: false
     fetchRegistry: false
-    service-url:
+    service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 ```
-其中，  todo 待补充，先去吃饭...
+请注意一点，很多网上的教程，还有spring官方的教程上将service-url写成serviceUrl这是错误的！
+3. eureka-server的springboot入口main application类：
+```
+@EnableEurekaServer
+@SpringBootApplication
+public class EurekaServerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaServerApplication.class, args);
+    }
+}
+```
 详见/discovery/eureka-server模块。
+4.
 ### 服务路由和负载均衡 routing.
 待补充
 ### 调用链追踪 call-chain.
