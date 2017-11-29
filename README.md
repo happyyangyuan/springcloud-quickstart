@@ -4,7 +4,7 @@ spring cloud为开发人员提供了快速搭建分布式系统的一整套解�
 另外说明spring cloud是基于springboot的，所以需要开发中对springboot有一定的了解。
 
 ## spring cloud依赖管理
-1. 申明gradle全局公共变量：gradle.properties文件。我们主要用它来定义springCloud版本号，springboot版本号，以及其他一些公共变量
+1. 申明gradle全局公共变量：/gradle.properties文件。我们主要用它来定义springCloud版本号，springboot版本号，以及其他一些公共变量
 ```properties
 ## dependency versions.
 springBootVersion=1.5.8.RELEASE
@@ -43,32 +43,9 @@ allprojects {
     }
 }
 ```
-4. settings.gradle文件
+4. /settings.gradle文件
 它的作用是帮我们在IDE内自动组织项目结构（project structures）的，帮我们避开idea/eclipse内配置工程结构的复杂操作有兴趣可以读一下源码。
-```gradle
-def dir = new File(settingsDir.toString())
-def projects = new HashSet()
-def projectSymbol = File.separator + 'src'
-dir.eachDirRecurse { subDir ->
-    def subDirName = subDir.canonicalPath
-    def isSubProject = true
-    if (subDirName.endsWith(projectSymbol)) {
-        for (String projectDir in projects) {
-            if (subDirName.startsWith(projectDir)) {
-                isSubProject = false
-                break
-            }
-        }
-        if (isSubProject) {
-            projects << subDirName
-            def lastIndex = subDirName.lastIndexOf(projectSymbol)
-            def gradleModulePath = subDirName.substring(dir.canonicalPath.length(), lastIndex).replace(File.separator, ':')
-            println "include " + gradleModulePath
-            include gradleModulePath
-        }
-    }
-}
-```
+
 ## 服务注册中心 /discovery/eureka-server
 1. 本示例使用的是Spring Cloud Netflix的Eureka ,eureka是一个服务注册和发现模块，公共依赖部分已经在根路径的build.gradle中给出，
 eureka-server模块自身依赖在/discovery/eureka-server/build.gradle文件配置如下：
@@ -120,7 +97,6 @@ public class EurekaDemoClientApplication {
     public static void main(String[] args) {
         SpringApplication.run(EurekaDemoClientApplication.class, args);
     }
-
     @Value("${server.port}")
     private int port;
 
@@ -130,9 +106,80 @@ public class EurekaDemoClientApplication {
     }
 }
 ```
+application.yml
+```
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8763
+spring:
+  application:
+    name: eureka-demo-client
+```
+执行main方法启动springboot后，可以访问http://localhost:8763/hi 查看springboot restApi效果。
+访问http://localhost:8761 (eureka-server控制台)查看服务注册效果。
+依次类推，再启动另外一个/discovery/eureka-demo-client0，请再次查看服务注册效果。
 
-### 服务路由和负载均衡 routing.
-待补充
+### 服务路由和负载均衡 routing
+以上/discovery/eureka-demo-client和/discovery/eureka-demo-client0我们可以把它看作是服务提供者service provider，这里开始定义服务消费者，即对服务提供者进行调用的的客户端。
+当同一个微服务启动了多个副本节点后，我们对该服务的调用就需要一个负载均衡器来选择其中一个节点来进行调用，这就是springcloud-ribbon提供的功能。而feign则是对springcloud ribbon的一个封装，方便使用的。这里不深入介绍ribbon了，它本质就是一个借助服务注册发现实现的一个负载均衡器。
+下面来分析feign源码：<br/>
+/routing/routing-feign/build.gradle
+```gradle
+dependencies{
+    compile "org.springframework.cloud:spring-cloud-starter-feign"
+    compile "org.springframework.cloud:spring-cloud-starter-eureka"
+}
+```
+com.example.RoutingDemoFeignApplication.java
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClients
+public class RoutingDemoFeignApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(RoutingDemoFeignApplication.class, args);
+    }
+}
+```
+com.example.CallHiService.java接口，指明service provider微服务名: eureka-demo-client
+```java
+@FeignClient(value = "eureka-demo-client")
+public interface CallServiceHi {
+    @RequestMapping(value = "/hi", method = RequestMethod.GET)
+    String sayHiFromClientOne(@RequestParam(value = "name") String name);
+}
+```
+com.example.HiController.java 方便我们验证负载均衡结果：
+```java
+@RestController
+public class HiController {
+    @Autowired
+    private CallServiceHi hiServiceCaller;
+
+    @RequestMapping("hi")
+    public String hi(@RequestParam String name) {
+        return hiServiceCaller.sayHiFromClientOne(name);
+    }
+}
+```
+application.yml需要指明服务注册中心的地址，从而可以获取到所有目标节点信息，从而实现负载的功能
+```yml
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8765
+spring:
+  application:
+    name: service-feign
+```
+运行main方法，启动springboot，然后请多次访问http://localhost:8765/hi?name=happyyangyuan 查看负载效果。
+预期的输出结果轮流为：hi happyyangyuan, my port=8763   /   hi happyyangyuan, my port=8762
+
 ### 调用链追踪 call-chain.
 待补充
 ### 集中配置管理 config.
