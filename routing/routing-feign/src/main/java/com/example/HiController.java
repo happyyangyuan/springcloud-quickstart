@@ -14,7 +14,7 @@ public class HiController {
     private CallServiceHi hiServiceCaller;
 
     @RequestMapping("hi")
-    public String hi(@RequestParam String name) {
+    public String hi(@RequestParam(required = false) String name) {
         return hiServiceCaller.sayHiFromClientOne(name);
     }
 }

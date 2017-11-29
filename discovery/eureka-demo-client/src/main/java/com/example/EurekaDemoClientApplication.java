@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -21,8 +22,10 @@ public class EurekaDemoClientApplication {
     @Value("${server.port}")
     private int port;
 
-    @RequestMapping("/hi")
-    public String hi() {
-        return "hi, my port=" + port;
+    @RequestMapping("hi")
+    public String hi(@RequestParam(required = false) String name) {
+        if (name == null)
+            name = "Anonymous";
+        return "hi " + name + ", my port=" + port;
     }
 }
