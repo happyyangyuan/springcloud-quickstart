@@ -15,7 +15,7 @@ transmodeGradleDockerVersion=1.2
 #This configuration is for docker container environment to access the local machine host，in Chinese is "宿主机" ip.
 hostMachineIp=10.40.20.54
 ```
-2. 申明springboot gradle插件
+2. 在/build.gradle文件内申明springboot gradle插件
 ```gradle
 buildscript {
     repositories {
@@ -27,7 +27,7 @@ buildscript {
     }
 }
 ```
-3. 为所有gradle project引入springcloud公共依赖
+3. 在/build.gradle文件内为所有gradle project引入springcloud公共依赖
 ```gradle
 allprojects {
     apply plugin: 'org.springframework.boot'
@@ -44,10 +44,10 @@ allprojects {
 }
 ```
 4. /settings.gradle文件
-它的作用是帮我们在IDE内自动组织项目结构（project structures）的，帮我们避开idea/eclipse内配置工程结构的复杂操作有兴趣可以读一下源码。
+它的作用是帮我们在IDE内自动组织项目结构（project structures）的，帮我们避开idea/eclipse内配置工程结构的复杂操作，有兴趣可以读一下源码。
 
-## 服务注册中心 /discovery/eureka-server
-1. 本示例使用的是Spring Cloud Netflix的Eureka ,eureka是一个服务注册和发现模块，公共依赖部分已经在根路径的build.gradle中给出，
+## 服务注册中心/discovery/eureka-server
+1. 本示例使用的是Spring Cloud Netflix Eureka ,eureka是一个服务注册和发现模块，公共依赖部分已经在根路径的build.gradle中给出，
 eureka-server模块自身依赖在/discovery/eureka-server/build.gradle文件配置如下：
 ```gradle
 dependencies {
@@ -81,7 +81,7 @@ public class EurekaServerApplication {
 启动这个main方法，然后访问 http://localhost:8761  <br/>
 代码详见/discovery/eureka-server模块。<br/>
 4. eureka-client服务注册客户端（service provider）
-服务提供方，比如一个微服务，可以将自己的信息注册到注册中心eureka-server内。<br/>
+服务提供方，比如一个微服务，作为eureka client身份可以将自己的信息注册到注册中心eureka-server内。<br/>
 /discovery/eureka-demo-client/build.gradle文件指定依赖如下：
 ```gradle
 dependencies {
@@ -122,7 +122,7 @@ spring:
 访问http://localhost:8761 (eureka-server控制台)查看服务注册效果。
 依次类推，再启动另外一个/discovery/eureka-demo-client0，请再次查看服务注册效果。
 
-### 服务路由和负载均衡 routing
+### 服务路由和负载均衡/routing
 以上/discovery/eureka-demo-client和/discovery/eureka-demo-client0我们可以把它看作是服务提供者service provider，这里开始定义服务消费者，即对服务提供者进行调用的的客户端。
 当同一个微服务启动了多个副本节点后，我们对该服务的调用就需要一个负载均衡器来选择其中一个节点来进行调用，这就是springcloud-ribbon提供的功能。而feign则是对springcloud ribbon的一个封装，方便使用的。这里不深入介绍ribbon了，它本质就是一个借助服务注册发现实现的一个负载均衡器。
 下面来分析feign源码：<br/>
@@ -180,13 +180,13 @@ spring:
 运行main方法，启动springboot，然后请多次访问http://localhost:8765/hi?name=happyyangyuan 查看负载效果。
 预期的输出结果轮流为：hi happyyangyuan, my port=8763   /   hi happyyangyuan, my port=8762
 
-### 调用链追踪 call-chain.
+### 调用链追踪/call-chain
 待补充
-### 集中配置管理 config.
+### 集中配置管理/config
 待补充
-### 服务网关 api-gateway.
+### 服务网关/api-gateway
 待补充
-### 断路器 待补充.
+### 断路器 待补充
 待补充
 ### 容器化运行方案
 1. 先新建一个容器网络，以便多个容器(微服务)之间可以相互通信，命令为<br/>
