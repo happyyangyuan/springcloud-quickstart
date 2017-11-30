@@ -318,9 +318,45 @@ dependencies {
     compile "org.springframework.cloud:spring-cloud-starter-eureka"
 }
 ````
-
-
-
+bootstrap.properties
+```properties
+spring.application.name=config-reader
+spring.cloud.config.label=master
+spring.cloud.config.profile=profileName
+spring.cloud.config.uri=http://localhost:8888/
+```
+application.yml
+```yml
+server:
+  port: 8881
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+```
+注意事项：
+- spring.cloud.config.label=master配置是指定config客户端读取远程git哪个分支，如果不配置，就是读取config-server给定的默认分支了。
+- spring.cloud.config.profile=profileName是指定config客户端读取远程git内application-profileName.properties而文件配置的。
+- 如果找不到对应配置就会fall back到“通用层”配置文件。
+- bootstrap先于application配置加载，一些基础配置要放在bootstrap里面，基础配置如demo所示。
+com.example.ConfigReaderApplication.java
+```java
+@SpringBootApplication
+@RestController
+@EnableDiscoveryClient
+public class ConfigReaderApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigReaderApplication.class, args);
+    }
+    @Value("${message}")
+    private String value;
+    @RequestMapping(value = "/")
+    public String read() {
+        return value;
+    }
+}
+```
+启动application，然后访问http://localhost:8881 查看效果吧。
 
 ### 服务网关/api-gateway
 待补充
