@@ -358,6 +358,47 @@ public class ConfigReaderApplication {
 ```
 启动application，然后访问http://localhost:8881 查看效果吧。
 
+#####  spring cloud bus 消息总线
+不知道你有没有发现，即使你把git内的配置修改了，以上config-reader是没法自动刷新配置的，必须重启服务才可以。spring cloud bus可以解决这个问题，让我们的配置可以动态刷新。
+这里以/config/config-reader-with-bus为例来讲解。
+引入依赖，build.gradle：
+```gradle
+dependencies {
+    compile "org.springframework.cloud:spring-cloud-starter-bus-amqp"
+    compile "org.springframework.cloud:spring-cloud-starter-config"
+    compile "org.springframework.cloud:spring-cloud-starter-eureka"
+}
+```
+这里引入了一个spring-cloud-starter-bus-amqp，它是spring cloud bus规范的一种实现，基于amqp协议。接入我们比较熟悉的rabbitMQ队列服务。
+bootstrap.yml配置如下：
+```yml
+server:
+  port: 8882
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+spring:
+  application:
+    name: config-reader
+  cloud:
+    config:
+      label:  master
+      profile:  dev
+      uri:  http://localhost:8888/
+  rabbitmq:
+    host: yourRabbitMqHost
+    port: 000 #yourRabbitPort
+    username: rabbitUserName
+    password: rabbitUserPwd
+management:
+  security:
+    enabled: false
+```
+注意事项：
+- rabbitmq客户端配置请自行填充以便你能完成本次demo效果测试。
+- management.security.enabled=false配置是为了方便我们后面测试的，后面详细说明。
+
 ### 服务网关/api-gateway
 待补充
 ### 断路器 待补充
@@ -369,7 +410,7 @@ public class ConfigReaderApplication {
 3. 在根目录执行gradle dockerBuild命令，构建完毕后，可使用docker images查看。
 4. 由于几乎所有的其他微服务组件都依赖服务发现，因此先启动服务注册服务端，使用如下命令运行：<br/>
   ```docker run --network springcloud-quickstart -p 8761:8761 com.example/eureka-server:0.0.1-SNAPSHOT```<br/>
-发现服务(eureka-server)需要端口暴露，以便我们可以在容器外面访问到它的控制台，地址是http://localhost:8761，建议端口映射与内部端口一致。
+发现服务(eureka-server)需要端口暴露，以便我们可以在容器外面访问到它的控制台，地址是http://localhost:8761 ，建议端口映射与内部端口一致。
 5. 启动其他服务，启动方式依次类推，除了zipkin-server和zuul网关，其他微服务组件是可以不暴露端口到外部的，列举几个关键节点启动命令。
   * zuul网关启动<br/>
   ```docker run --network springcloud-quickstart -p 8769:8769 com.example/zuul:0.0.1-SNAPSHOT```
