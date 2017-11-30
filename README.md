@@ -181,7 +181,93 @@ spring:
 预期的输出结果轮流为：hi happyyangyuan, my port=8763   /   hi happyyangyuan, my port=8762
 
 ### 调用链追踪/call-chain
-待补充
+/call-chain内的demo展示的是使用Spring Cloud Sleuth实现的分布式系统的调用链追踪方案，它兼容支持了zipkin，只需要在build.gradle文件中引入相应的依赖即可。<br/>
+#### /call-chain/zipkin-server
+顾名思义，就是springCloud Sleuth内置的zipkin-server集成，以来配置/call-chain/zipkin-server/build.gradle：
+```gradle
+dependencies {
+    compile "io.zipkin.java:zipkin-server"
+    compile "io.zipkin.java:zipkin-autoconfigure-ui"
+}
+```
+com.example.ZipkinServerApplication.java，注意加入@EnableZipkinServer注解：
+```java
+@SpringBootApplication
+@EnableZipkinServer
+public class ZipkinServerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ZipkinServerApplication.class, args);
+    }
+}
+```
+application.properties指明zipkin端口
+```
+server.port=9411
+```
+执行com.example.ZipkinServerApplication.java的main方法启动，然后访问http://localhost:9411
+#### /call-chain/zipkin-clients调用链模拟
+这里模拟调用链： zipkin-client --调用-->  zipkin-client0 --调用--> zipkin-client1  <br/>
+##### /call-chain/zipkin-clients/build.gradle指定三个zipkinClients的公共依赖配置：
+```gradle
+subprojects{
+    dependencies {
+        compile 'org.springframework.cloud:spring-cloud-starter-zipkin'
+        /*这两个依赖已经被传递依赖了，因此不需要申明
+        compile "org.springframework.cloud:spring-cloud-sleuth-zipkin-stream"
+        compile "org.springframework.cloud:spring-cloud-starter-sleuth"*/
+        compile "org.springframework.cloud:spring-cloud-starter-feign"
+        compile "org.springframework.cloud:spring-cloud-starter-eureka"
+    }
+}
+```
+注意到，服务调用我们使用的的是feign客户端，并且引入了服务发现eureka客户端和zipkin客户端。
+##### zipkin客户端配置
+配置文件依然是/call-chain/zipkin-clients/zipkin-client/src/main/resources/application.properties
+```
+server.port=8988
+spring.zipkin.base-url=http://localhost:9411
+spring.application.name=zipkin-client
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+#The percentage of call-chaining messages to be sent to sleuth provider (zipkin for example).
+#Value range is 0.0~1.0, defaults to 0.1
+spring.sleuth.sampler.percentage=1
+```
+上面的配置文件，注意一下三点
+- 给定zipkin-server端地址：spring.zipkin.base-url=http://localhost:9411
+- 给定eureka-server地址：eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+- 方便调试给定调用链追踪数据采用比例为100%，对应配置值为1，取值范围是0~1：spring.sleuth.sampler.percentage=1
+##### zipkin客户端ZipkinClientApplication代码逻辑
+com.example.ZipkinClientApplication.java使用feign实现了对zipkin-client0的调用：
+```java
+@SpringBootApplication
+@RestController
+@EnableDiscoveryClient
+@EnableFeignClients
+public class ZipkinClientApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ZipkinClientApplication.class, args);
+    }
+    @Autowired
+    private FeignServiceInterface feignService;
+    @RequestMapping(value = "/")
+    public String home() {
+        return feignService.callServiceFeign("no name");
+    }
+    @FeignClient(value = "zipkin-client0")
+    public interface FeignServiceInterface {
+        @RequestMapping(value = "/", method = RequestMethod.GET)
+        String callServiceFeign(@RequestParam(value = "name") String name);
+    }
+}
+```
+不知道你注意到没有，zipkin客户端激活功能不需要什么鬼类似“@EnableXxx”之类的注解，满足以下两点就可以激活zipkin客户端了数据采集了：
+- 配置zipkin-server访问地址
+- 引入zipkin 客户端依赖
+就是这么简单！
+其他两个zipkin-client0、zipkin-client1依次类推，我就不再粘贴代码了。
+#### 验证调用链看效果
+启动zipkin-server、zipkin-client、zipkin-client0、zipkin-client1，启动方式你们都懂的。
+然后访问http://localhost:8988 即可将调用链日志数据发送给zipkin-server，然后你再访问http://localhost:9411 查看调用链的展示。界面操作太简单，我就不贴图了。
 ### 集中配置管理/config
 待补充
 ### 服务网关/api-gateway
