@@ -307,6 +307,20 @@ spring.cloud.config.label=master
 - 既可以使用远程git地址也可以使用本地git哦，比如你做测试做实验时。
 - linux系统内config server默认是将git文件缓存在在本地的/tmp路径内，但是许多Linux系统会定期清理/tmp文件的，导致配置失效。
 
+#### config client
+在实际分布式应用里面，很多微服务应用都有自己独立的配置文件的，由于分布式应用比较分散，管理麻烦，因此我们可以考虑把微服务连接到spring cloud config server上，从config server读取集中配置。
+##### 一个简单的config reader
+demo在 /config/config-reader路径内
+依赖引入：
+```build.gradle
+dependencies {
+    compile "org.springframework.cloud:spring-cloud-starter-config"
+    compile "org.springframework.cloud:spring-cloud-starter-eureka"
+}
+````
+
+
+
 
 ### 服务网关/api-gateway
 待补充
