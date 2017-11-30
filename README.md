@@ -268,8 +268,46 @@ public class ZipkinClientApplication {
 #### 验证调用链看效果
 启动zipkin-server、zipkin-client、zipkin-client0、zipkin-client1，启动方式你们都懂的。
 然后访问http://localhost:8988 即可将调用链日志数据发送给zipkin-server，然后你再访问http://localhost:9411 查看调用链的展示。界面操作太简单，我就不贴图了。
+
 ### 集中配置管理/config
-待补充
+  在实际微服务实现的分布式应用中，微服务数量是比较多的，节点数就更多了，我们不可能去每个节点里面去修改和维护那些配置文件的。我们需要一个统一的地方去定义和管理这些配置，springCloud Config提供了这样一个功能，我们只需要使用VCS版本管理控制系统比如git来维护一份统一配置，然后由springCloudConfig server读取这些配置，并可以提供给其他所有springCloudConfig Client来读取。使用VCS不仅可以让我们可以追溯所有的历史版本的配置文件，而且也实现了统一管理。
+#### config server
+demo在/config/config-server内<br/>
+先引入config需要的依赖，build.gradle：
+```gradle
+dependencies {
+    compile('org.springframework.cloud:spring-cloud-config-server')
+}
+```
+com.example.ConfigServerApplication.java加入@EnableConfigServer注解
+```java
+@EnableConfigServer
+@SpringBootApplication
+public class ConfigServerApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigServerApplication.class, args);
+	}
+}
+```
+application.properties：
+```properties
+spring.application.name=config-server
+server.port=8888
+##spring.cloud.config.server.git.uri
+# Please change the following configuration to point to your own configuration git repo url.
+spring.cloud.config.server.git.uri=https://github.com/happyyangyuan/springcloud-configuration.git
+# Local git repo url for test only.
+# spring.cloud.config.server.git.uri=${HOME}/ideaProjects/spring/configurations-demo-git
+# in case of the default /tmp dir deletion.
+spring.cloud.config.server.git.basedir=config-repo
+#Branch name for the repository.
+spring.cloud.config.label=master
+```
+这里配置文件注意几点：
+- 既可以使用远程git地址也可以使用本地git哦，比如你做测试做实验时。
+- linux系统内config server默认是将git文件缓存在在本地的/tmp路径内，但是许多Linux系统会定期清理/tmp文件的，导致配置失效。
+
+
 ### 服务网关/api-gateway
 待补充
 ### 断路器 待补充
