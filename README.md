@@ -398,6 +398,31 @@ management:
 注意事项：
 - rabbitmq客户端配置请自行填充以便你能完成本次demo效果测试。
 - management.security.enabled=false配置是为了方便我们后面测试的，后面详细说明。
+com.example.ConfigReaderWithBusApplication类
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+@RefreshScope
+public class ConfigReaderWithBusApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigReaderWithBusApplication.class, args);
+    }
+    /**
+     * Waning: {@link RefreshScope} does not support private properties
+     */
+    @Value("${message}")
+    String message;
+    @RequestMapping("/")
+    public String home() {
+        return message;
+    }
+}
+```
+注意事项：
+- @RefreshScope注解是必须的，否则无法实现动态刷新配置
+- @Value("${message}")注解的成员必须不能是private私有，否则无法刷新。这是我测试得到的结论，各位也可以自行验证一下。
+
 
 ### 服务网关/api-gateway
 待补充
