@@ -422,6 +422,7 @@ public class ConfigReaderWithBusApplication {
 注意事项：
 - @RefreshScope注解是必须的，否则无法实现动态刷新配置
 - @Value("${message}")注解的成员必须不能是private私有，否则无法刷新。这是我测试得到的结论，各位也可以自行验证一下。
+启动application，然后访问http://localhost:8882 看看配置是否读取出来。然后修改你的git对应的配置文件，然后用postman/curl等http客户端工具调用如下API：http://localhost:8882/config/refresh 触发配置更新，然后再次访问http://localhost:8882 看看配置是否有更新。
 
 
 ### 服务网关/api-gateway
