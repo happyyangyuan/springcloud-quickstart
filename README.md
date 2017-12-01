@@ -4,7 +4,7 @@ spring cloud为开发人员提供了快速搭建分布式系统的一整套解�
 另外说明spring cloud是基于springboot的，所以需要开发中对springboot有一定的了解。
 
 ## spring cloud依赖管理
-1. 申明gradle全局公共变量：/gradle.properties文件。我们主要用它来定义springCloud版本号，springboot版本号，以及其他一些公共变量
+1. 在/gradle.properties文件内申明gradle全局公共变量。我们主要用它来定义springCloud版本号，springboot版本号，以及其他一些公共变量
 ```properties
 ## dependency versions.
 springBootVersion=1.5.8.RELEASE
@@ -43,6 +43,8 @@ allprojects {
     }
 }
 ```
+注意，上面imports的mavenBom非常重要，它帮我们管理了springCloud各种零散的jar包的版本。有了它，我们在对springCloud组件的依赖引入时，不需要指定具体的组件版本了，这简直是炒鸡方便啊。
+
 4. /settings.gradle文件
 它的作用是帮我们在IDE内自动组织项目结构（project structures）的，帮我们避开idea/eclipse内配置工程结构的复杂操作，有兴趣可以读一下源码。
 
