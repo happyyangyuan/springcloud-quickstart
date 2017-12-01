@@ -422,14 +422,58 @@ public class ConfigReaderWithBusApplication {
 注意事项：
 - @RefreshScope注解是必须的，否则无法实现动态刷新配置
 - @Value("${message}")注解的成员必须不能是private私有，否则无法刷新。这是我测试得到的结论，各位也可以自行验证一下。
+
 启动application，然后访问http://localhost:8882 看看配置是否读取出来。然后修改你的git对应的配置文件，然后用postman/curl等http客户端工具调用如下API：http://localhost:8882/bus/refresh 触发配置更新，如果提示无权限调用此接口，可以配置为禁用management.security.enabled=false，然后再次访问http://localhost:8882 看看配置是否有更新。
 -/config/config-reader-with-bus0是另外一个config client的demo，它是用来验证一次刷新/bus/refresh则所有支持了消息总线的客户端都统一自动刷新配置的功能。亲，动手试试吧。
 
 
 ### 服务网关/api-gateway
-待补充
+本demo /api-gateway/zuul 展示的是使用spring cloud Zuul实现的网关服务。Zuul的主要功能是路由转发和过滤器，路由功能是微服务的一部分，比如／api/user转发到到user服务，/api/shop转发到到shop服务。zuul默认和Ribbon结合实现了负载均衡的功能。
+依赖管理build.gradle:
+```gradle
+dependencies {
+    compile "org.springframework.cloud:spring-cloud-starter-zuul"
+    compile "org.springframework.cloud:spring-cloud-starter-eureka"
+}
+```
+注意这里，ribbon的依赖不需要加入，因为它会被zuul传递依赖得到，服务发现客户端依赖spring-cloud-starter-eureka必须要加入。
+
+application.yml
+```yml
+server:
+  port: 8769
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+spring:
+  application:
+    name: zuul
+zuul:
+  routes:
+    api0:
+      path: /api0/**
+      serviceId: eureka-demo-client
+```
+根据配置的转发规则可以看到，对zuul的/api0/** 的请求将全部转发到服务eureka-demo-client上，我们可以在这里配置多个路由转发规则。
+
+com.example.ZuulApplication
+```java
+@EnableDiscoveryClient
+@EnableZuulProxy
+@SpringBootApplication
+public class ZuulApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ZuulApplication.class, args);
+    }
+}
+```
+启动ZuulApplication查看效果： http://localhost:8769/api0/hi?name=happyyangyuan
+
+
 ### 断路器 待补充
 待补充
+
 ### 容器化运行方案
 1. 先新建一个容器网络，以便多个容器(微服务)之间可以相互通信，命令为<br/>
 ```docker network create springcloud-quickstart```
@@ -447,12 +491,12 @@ public class ConfigReaderWithBusApplication {
   ```docker run --network springcloud-quickstart -p 8888:8888 com.example/config-server:0.0.1-SNAPSHOT```
   * 其他<br/>
   ```docker run --network springcloud-quickstart com.example/<applicationName>:0.0.1-SNAPSHOT```
-
-**请按顺序学习，更多细节待补充...** 
-### 一些心得
+### 关于容器化构建的附加说明
 1. gradle dockerBuild命令会遍历所有子project，并自动构建出所有微服务的镜像。我使用的是alpine+jre8，如果本地没有这个镜像，会从dockerHub下载alpine-jre基础镜像，第一次可能会比较久。alpine+jre整个基础镜像是80m左右，主要是jre比较大，再加上springCloud微服务的n多个jar包，最终应用镜像大小是120m左右。算是目前我能做到的最小的镜像。小归小，但是也有缺点：
 * alpine系统内置的不是我们熟悉的bash shell，而是ash shell。
 * 内置的jre，不提供jdk的很多调试命令，爱搞jvm调试的你们懂得。<br/>
 2. 我们使用的是se.transmode.gradle:gradle-docker插件，有兴趣可以GitHub查看它的使用说明。<br/>
+
+**请按顺序学习，日后star数增加后我会补充更多细节...** 
 
 **本教程是教你如何使用spring cloud，以及构建镜像和本地运行集群，如果你需要学习更高级的devops和集群部署技术，比如docker swarm, kubernetes等，请多多star给我动力，我后面逐渐补充。**
