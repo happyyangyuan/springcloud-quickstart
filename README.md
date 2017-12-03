@@ -1,5 +1,5 @@
 # springcloud-quickstart
-这是一个基于gradle构建工具的springCloud微服务框架超级简单入门教程。
+这是一个基于gradle构建工具的spring cloud微服务框架超级简单入门教程。
 spring cloud为开发人员提供了快速搭建分布式系统的一整套解决方案，包括配置管理、服务发现、断路器、路由、微代理、事件总线、全局锁、决策竞选、分布式会话等等。它可以直接在PC上使用Java的main方法运行集群。
 另外说明spring cloud是基于springboot的，所以需要开发中对springboot有一定的了解。
 
