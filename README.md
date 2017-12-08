@@ -2,6 +2,8 @@
 这是一个基于gradle构建工具的spring cloud微服务框架超级简单入门教程。
 spring cloud为开发人员提供了快速搭建分布式系统的一整套解决方案，包括配置管理、服务发现、断路器、路由、微代理、事件总线、全局锁、决策竞选、分布式会话等等。它可以直接在PC上使用Java的main方法运行集群。
 另外说明spring cloud是基于springboot的，所以需要开发中对springboot有一定的了解。
+**本教程是教你如何使用spring cloud，以及构建镜像和本地单单机运行集群，如果你需要学习更高级集群部署技术以及devops/CI/CD，比如docker swarm, kubernetes以及rancher等等，请多多star，给我动力，突破100star，我就会继续补充。**
+另外说明spring cloud是基于springboot的，所以需要开发中对springboot有一定的了解。
 
 ## spring cloud依赖管理
 1. 在/gradle.properties文件内申明gradle全局公共变量。我们主要用它来定义springCloud版本号，springboot版本号，以及其他一些公共变量
@@ -500,5 +502,3 @@ public class ZuulApplication {
 2. 我们使用的是se.transmode.gradle:gradle-docker插件，有兴趣可以GitHub查看它的使用说明。<br/>
 
 **请按顺序学习，日后star数增加后我会补充更多细节...** 
-
-**本教程是教你如何使用spring cloud，以及构建镜像和本地运行集群，如果你需要学习更高级的devops和集群部署技术，比如docker swarm, kubernetes等，请多多star给我动力，我后面逐渐补充。**
