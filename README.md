@@ -4,7 +4,7 @@ spring cloud为开发人员提供了快速搭建分布式系统的一整套解�
 另外说明spring cloud是基于springboot的，所以需要开发中对springboot有一定的了解。<br/><br/>
 本教程是教你如何使用spring cloud，以及构建镜像和本地单机运行集群，如果你需要学习更高级集群部署技术以及devops/CI/CD，比如docker swarm, kubernetes以及rancher等等，请点star给我继续补充的动力。
 
-**我最近在推广我自己开源的微服务框架套件，学习成本相对springcloud低很多，有兴趣的可以关注一下**  
+**最近在推广我自己开源的生产级高性能响应式的微服务框架，学习成本相对springcloud低很多，有兴趣的可以关注一下**  
 https://github.com/xiancloud/xian
 
 ## spring cloud依赖管理
